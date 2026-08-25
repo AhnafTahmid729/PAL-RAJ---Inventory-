@@ -47,7 +47,7 @@ onSnapshot(collection(db, "inventory"), (snap) => {
 }, (err) => {
   connStatus.textContent = "Connection error";
   connStatus.className = "conn-status conn-error";
-  showToast("Firestore connect kore uthte parche na. firebase-config.js check korun.", true);
+  showToast("Could not connect to Firestore. Please check firebase-config.js.", true);
   console.error(err);
 });
 
@@ -64,8 +64,8 @@ document.getElementById("form-stockin").addEventListener("submit", async (e) => 
   e.preventDefault();
   const name = document.getElementById("in-name").value.trim();
   const qty = parseFloat(document.getElementById("in-qty").value);
-  if (!name) return showToast("Item name din.", true);
-  if (!qty || qty <= 0) return showToast("Sothik quantity din.", true);
+  if (!name) return showToast("Please enter an item name.", true);
+  if (!qty || qty <= 0) return showToast("Please enter a valid quantity.", true);
 
   const k = keyOf(name);
   const category = document.getElementById("in-category").value;
@@ -95,11 +95,11 @@ document.getElementById("form-stockin").addEventListener("submit", async (e) => 
       qty, department: "Store", by, note
     });
 
-    showToast(name + " stock-e add hoyeche (+" + qty + " " + unit + ")");
+    showToast(name + " added to stock (+" + qty + " " + unit + ")");
     document.getElementById("form-stockin").reset();
   } catch (err) {
     console.error(err);
-    showToast("Save kora jayni. Abar try korun.", true);
+    showToast("Could not save. Please try again.", true);
   }
 });
 
@@ -112,16 +112,16 @@ document.getElementById("form-issue").addEventListener("submit", async (e) => {
   const by = document.getElementById("out-by").value.trim() || "-";
   const note = document.getElementById("out-note").value.trim() || "-";
 
-  if (!k) return showToast("Item select korun.", true);
-  if (!qty || qty <= 0) return showToast("Sothik quantity din.", true);
+  if (!k) return showToast("Please select an item.", true);
+  if (!qty || qty <= 0) return showToast("Please enter a valid quantity.", true);
 
   try {
     const ref = doc(db, "inventory", k);
     const snap = await getDoc(ref);
-    if (!snap.exists()) return showToast("Item pawa jayni.", true);
+    if (!snap.exists()) return showToast("Item not found.", true);
     const item = snap.data();
     if (qty > item.qty) {
-      return showToast("Stock-e shudhu " + item.qty + " " + item.unit + " ache — eto issue kora jabe na.", true);
+      return showToast("Only " + item.qty + " " + item.unit + " in stock — cannot issue that much.", true);
     }
     await setDoc(ref, { qty: item.qty - qty, lastUpdated: serverTimestamp() }, { merge: true });
     await addDoc(collection(db, "transactions"), {
@@ -131,11 +131,11 @@ document.getElementById("form-issue").addEventListener("submit", async (e) => {
       itemName: item.name,
       qty, department, by, note
     });
-    showToast(qty + " " + item.unit + " " + item.name + " → " + department + " ke issue kora hoyeche");
+    showToast(qty + " " + item.unit + " of " + item.name + " issued to " + department);
     document.getElementById("form-issue").reset();
   } catch (err) {
     console.error(err);
-    showToast("Save kora jayni. Abar try korun.", true);
+    showToast("Could not save. Please try again.", true);
   }
 });
 
@@ -167,10 +167,10 @@ function renderDashboard() {
     <div class="row">
       <div>
         <div class="row-main">${esc(t.itemName)}</div>
-        <div class="row-sub">${t.type === "IN" ? "Store-e ashlo" : "→ " + esc(t.department)}</div>
+        <div class="row-sub">${t.type === "IN" ? "Received into store" : "→ " + esc(t.department)}</div>
       </div>
       <div class="row-qty ${t.type === "IN" ? "in" : "out"}">${t.type === "IN" ? "+" : "-"}${t.qty}</div>
-    </div>`).join("") : `<p class="hint">Ekhono kono transaction nei.</p>`;
+    </div>`).join("") : `<p class="hint">No transactions yet.</p>`;
 }
 
 // ---------- Render: Inventory list ----------
@@ -191,7 +191,7 @@ function renderInventory() {
       </div>
       <div class="row-qty">${i.qty} ${esc(i.unit)}</div>
     </div>`;
-  }).join("") : `<p class="hint">Kono item nei.</p>`;
+  }).join("") : `<p class="hint">No items yet.</p>`;
 }
 document.getElementById("search-inventory").addEventListener("input", renderInventory);
 
@@ -230,7 +230,7 @@ function renderTransactions() {
         <span>${fmtDate(t.date)}</span>
       </div>
       ${t.note && t.note !== "-" ? `<div class="row-sub">${esc(t.note)}</div>` : ""}
-    </div>`).join("") : `<p class="hint">Kono transaction nei.</p>`;
+    </div>`).join("") : `<p class="hint">No transactions yet.</p>`;
 }
 
 function fmtDate(ts) {
