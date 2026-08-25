@@ -47,6 +47,14 @@ body {
   font-weight: 700; font-size: 15px; letter-spacing: 0.5px;
   flex-shrink: 0;
 }
+.brand-logo {
+  width: 42px; height: 42px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 8px;
+  padding: 4px;
+  flex-shrink: 0;
+}
 .brand h1 { font-size: 16px; margin: 0; font-weight: 600; }
 .brand p { font-size: 12px; margin: 2px 0 0; color: #b7c0d4; }
 
@@ -146,6 +154,30 @@ input:focus, select:focus { outline: 2px solid var(--steel); outline-offset: 1px
 .btn-primary:hover { background: var(--steel-dark); }
 
 .search-box { max-width: 280px; margin-bottom: 14px; }
+
+.toolbar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.toolbar-row .search-box { margin-bottom: 0; }
+.toolbar-row .filter-row { margin-bottom: 0; }
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--steel);
+  border: 1px solid var(--steel);
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-secondary:hover { background: var(--surface-alt); }
 
 .filter-row { display: flex; gap: 6px; margin-bottom: 12px; }
 .filter-btn {

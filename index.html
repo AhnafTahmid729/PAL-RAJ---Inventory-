@@ -10,10 +10,10 @@
 
 <header class="topbar">
   <div class="brand">
-    <span class="brand-mark">PA</span>
+    <img src="logo.png" alt="PRAN" class="brand-logo" />
     <div>
       <h1>PRAN Agro Ltd.</h1>
-      <p>Store &amp; Engineering Inventory Register</p>
+      <p>Store Inventory Register</p>
     </div>
   </div>
   <div id="conn-status" class="conn-status conn-checking">Connecting…</div>
@@ -56,8 +56,9 @@
           <option>Other</option>
         </select>
         <select id="in-unit">
-          <option>pcs</option><option>meter</option><option>kg</option>
-          <option>box</option><option>set</option><option>liter</option><option>roll</option>
+          <option>pcs</option><option>meter</option><option>feet</option><option>kg</option>
+          <option>gm</option><option>box</option><option>packet</option><option>set</option>
+          <option>liter</option><option>roll</option>
         </select>
       </div>
       <div class="form-row">
@@ -83,6 +84,9 @@
         <option>Extruded Snacks</option>
         <option>Laccha</option>
         <option>Bakery</option>
+        <option>Tasty Treat</option>
+        <option>Admin</option>
+        <option>Common</option>
         <option>Store</option>
       </select>
       <input type="text" id="out-by" placeholder="Issued to (name)" />
@@ -92,15 +96,21 @@
   </section>
 
   <section id="tab-inventory" class="tab-panel">
-    <input type="text" id="search-inventory" placeholder="Search item..." class="search-box" />
+    <div class="toolbar-row">
+      <input type="text" id="search-inventory" placeholder="Search item..." class="search-box" />
+      <button id="export-inventory-btn" class="btn-secondary">Export to Excel (CSV)</button>
+    </div>
     <div id="inventory-list" class="row-list"></div>
   </section>
 
   <section id="tab-log" class="tab-panel">
-    <div class="filter-row">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="IN">Stock in</button>
-      <button class="filter-btn" data-filter="OUT">Issued</button>
+    <div class="toolbar-row">
+      <div class="filter-row">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="IN">Stock in</button>
+        <button class="filter-btn" data-filter="OUT">Issued</button>
+      </div>
+      <button id="export-tx-btn" class="btn-secondary">Export to Excel (CSV)</button>
     </div>
     <div id="tx-list" class="row-list"></div>
   </section>

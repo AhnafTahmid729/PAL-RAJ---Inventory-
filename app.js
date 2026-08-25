@@ -11,6 +11,12 @@ const db = getFirestore(app);
 const connStatus = document.getElementById("conn-status");
 let inventory = {};   // { itemKey: {name, category, unit, qty, minStock} }
 let transactions = []; // array, newest first
+const DEFAULT_LOW_STOCK = 3; // if an item has no custom min-stock set, alert when qty <= 3
+
+function isLow(item) {
+  const threshold = item.minStock > 0 ? item.minStock : DEFAULT_LOW_STOCK;
+  return item.qty <= threshold;
+}
 
 function keyOf(name) {
   return name.trim().toLowerCase().replace(/\s+/g, "_");
@@ -146,7 +152,7 @@ function renderDashboard() {
   document.getElementById("stat-qty").textContent = items.reduce((s, i) => s + (i.qty || 0), 0).toLocaleString();
   document.getElementById("stat-tx").textContent = transactions.length;
 
-  const low = items.filter(i => i.minStock > 0 && i.qty <= i.minStock);
+  const low = items.filter(i => isLow(i));
   document.getElementById("stat-low").textContent = low.length;
 
   const lowBlock = document.getElementById("low-stock-block");
@@ -156,7 +162,7 @@ function renderDashboard() {
     lowList.innerHTML = low.map(i => `
       <div class="row low-stock">
         <div><div class="row-main">${esc(i.name)}</div></div>
-        <div class="row-qty">${i.qty} ${esc(i.unit)} (min ${i.minStock})</div>
+        <div class="row-qty">${i.qty} ${esc(i.unit)}</div>
       </div>`).join("");
   } else {
     lowBlock.classList.add("hidden");
@@ -167,7 +173,7 @@ function renderDashboard() {
     <div class="row">
       <div>
         <div class="row-main">${esc(t.itemName)}</div>
-        <div class="row-sub">${t.type === "IN" ? "Received into store" : "→ " + esc(t.department)}</div>
+        <div class="row-sub">${t.type === "IN" ? "Received into store" : "→ " + esc(t.department)} · ${fmtDate(t.date)}</div>
       </div>
       <div class="row-qty ${t.type === "IN" ? "in" : "out"}">${t.type === "IN" ? "+" : "-"}${t.qty}</div>
     </div>`).join("") : `<p class="hint">No transactions yet.</p>`;
@@ -182,7 +188,7 @@ function renderInventory() {
     .sort((a, b) => a.name.localeCompare(b.name));
 
   document.getElementById("inventory-list").innerHTML = items.length ? items.map(i => {
-    const low = i.minStock > 0 && i.qty <= i.minStock;
+    const low = isLow(i);
     return `
     <div class="row ${low ? "low-stock" : ""}">
       <div>
@@ -242,3 +248,43 @@ function fmtDate(ts) {
 function esc(str) {
   return String(str ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
+
+// ---------- CSV Export ----------
+function csvCell(val) {
+  const s = String(val ?? "");
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function downloadCsv(filename, rows) {
+  const csv = rows.map(r => r.map(csvCell).join(",")).join("\r\n");
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById("export-inventory-btn").addEventListener("click", () => {
+  const items = Object.entries(inventory).map(([k, v]) => ({ key: k, ...v })).sort((a, b) => a.name.localeCompare(b.name));
+  const rows = [["Item name", "Category", "Quantity", "Unit", "Min stock alert"]];
+  items.forEach(i => rows.push([i.name, i.category, i.qty, i.unit, i.minStock || ""]));
+  downloadCsv("pran-agro-inventory.csv", rows);
+});
+
+document.getElementById("export-tx-btn").addEventListener("click", () => {
+  const rows = [["Date", "Type", "Item name", "Quantity", "Department", "By", "Note"]];
+  transactions.forEach(t => rows.push([
+    fmtDate(t.date),
+    t.type === "IN" ? "Stock In" : "Issued",
+    t.itemName,
+    t.qty,
+    t.type === "IN" ? "Store" : t.department,
+    t.by,
+    t.note && t.note !== "-" ? t.note : ""
+  ]));
+  downloadCsv("pran-agro-transactions.csv", rows);
+});
