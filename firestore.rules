@@ -1,0 +1,11 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // NOTE: this allows anyone with the website link to read and write.
+    // Fine for an internal tool shared only with your team, since there is
+    // no login system. Do not use this rule set for a public-facing app.
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

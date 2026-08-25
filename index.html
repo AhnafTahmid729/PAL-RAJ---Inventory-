@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PRAN Agro — Store Inventory</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">PA</span>
+    <div>
+      <h1>PRAN Agro Ltd.</h1>
+      <p>Store &amp; Engineering Inventory Register</p>
+    </div>
+  </div>
+  <div id="conn-status" class="conn-status conn-checking">Connecting…</div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="dashboard" class="tab-btn active">Dashboard</button>
+  <button data-tab="stockin" class="tab-btn">Stock In</button>
+  <button data-tab="issue" class="tab-btn">Issue Item</button>
+  <button data-tab="inventory" class="tab-btn">All Items</button>
+  <button data-tab="log" class="tab-btn">Transactions</button>
+</nav>
+
+<main id="app">
+
+  <section id="tab-dashboard" class="tab-panel active">
+    <div class="stat-grid">
+      <div class="stat-card"><span class="stat-label">Item types</span><span class="stat-value" id="stat-items">0</span></div>
+      <div class="stat-card"><span class="stat-label">Total quantity</span><span class="stat-value" id="stat-qty">0</span></div>
+      <div class="stat-card"><span class="stat-label">Transactions</span><span class="stat-value" id="stat-tx">0</span></div>
+      <div class="stat-card warn"><span class="stat-label">Low stock</span><span class="stat-value" id="stat-low">0</span></div>
+    </div>
+    <div id="low-stock-block" class="hidden">
+      <h2>Low stock alert</h2>
+      <div id="low-stock-list" class="row-list"></div>
+    </div>
+    <h2>Recent activity</h2>
+    <div id="recent-list" class="row-list"></div>
+  </section>
+
+  <section id="tab-stockin" class="tab-panel">
+    <p class="hint">Store-e notun item asle ekhane entry din. Item age thake thakle quantity add hoye jabe.</p>
+    <form id="form-stockin" class="form">
+      <input type="text" id="in-name" placeholder="Item name (e.g. Bearing 6205)" required />
+      <div class="form-row">
+        <select id="in-category">
+          <option>Mechanical</option>
+          <option>Electrical</option>
+          <option>Pipe Fitting</option>
+          <option>Other</option>
+        </select>
+        <select id="in-unit">
+          <option>pcs</option><option>meter</option><option>kg</option>
+          <option>box</option><option>set</option><option>liter</option><option>roll</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <input type="number" id="in-qty" placeholder="Quantity" min="0.01" step="any" required />
+        <input type="number" id="in-min" placeholder="Min stock alert (optional)" min="0" step="any" />
+      </div>
+      <input type="text" id="in-by" placeholder="Received by (name)" />
+      <input type="text" id="in-note" placeholder="Note / supplier / PO ref (optional)" />
+      <button type="submit" class="btn-primary">Add to stock</button>
+    </form>
+  </section>
+
+  <section id="tab-issue" class="tab-panel">
+    <p class="hint">Kono department item nile ekhane entry din — stock automatically kome jabe.</p>
+    <form id="form-issue" class="form">
+      <select id="out-item" required>
+        <option value="">-- Select item --</option>
+      </select>
+      <input type="number" id="out-qty" placeholder="Quantity to issue" min="0.01" step="any" required />
+      <select id="out-dept">
+        <option>Engineering</option>
+        <option>Koreana Snacks</option>
+        <option>Extruded Snacks</option>
+        <option>Laccha</option>
+        <option>Bakery</option>
+        <option>Store</option>
+      </select>
+      <input type="text" id="out-by" placeholder="Issued to (name)" />
+      <input type="text" id="out-note" placeholder="Purpose / note (optional)" />
+      <button type="submit" class="btn-primary">Issue item</button>
+    </form>
+  </section>
+
+  <section id="tab-inventory" class="tab-panel">
+    <input type="text" id="search-inventory" placeholder="Search item..." class="search-box" />
+    <div id="inventory-list" class="row-list"></div>
+  </section>
+
+  <section id="tab-log" class="tab-panel">
+    <div class="filter-row">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="IN">Stock in</button>
+      <button class="filter-btn" data-filter="OUT">Issued</button>
+    </div>
+    <div id="tx-list" class="row-list"></div>
+  </section>
+
+</main>
+
+<div id="toast" class="toast hidden"></div>
+
+<script type="module" src="firebase-config.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
