@@ -50,6 +50,7 @@ onSnapshot(collection(db, "inventory"), (snap) => {
   renderInventory();
   renderIssueDropdown();
   renderDashboard();
+  renderNameSuggestions();
 }, (err) => {
   connStatus.textContent = "Connection error";
   connStatus.className = "conn-status conn-error";
@@ -178,6 +179,22 @@ function renderDashboard() {
       <div class="row-qty ${t.type === "IN" ? "in" : "out"}">${t.type === "IN" ? "+" : "-"}${t.qty}</div>
     </div>`).join("") : `<p class="hint">No transactions yet.</p>`;
 }
+
+// ---------- Render: Item name suggestions (Stock In autocomplete) ----------
+function renderNameSuggestions() {
+  const list = document.getElementById("item-names-list");
+  const items = Object.values(inventory).sort((a, b) => a.name.localeCompare(b.name));
+  list.innerHTML = items.map(i => `<option value="${esc(i.name)}"></option>`).join("");
+}
+
+document.getElementById("in-name").addEventListener("input", (e) => {
+  const k = keyOf(e.target.value);
+  const existing = inventory[k];
+  if (existing) {
+    document.getElementById("in-category").value = existing.category;
+    document.getElementById("in-unit").value = existing.unit;
+  }
+});
 
 // ---------- Render: Inventory list ----------
 function renderInventory() {

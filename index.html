@@ -47,7 +47,8 @@
   <section id="tab-stockin" class="tab-panel">
     <p class="hint">Log every new item received by the Store here. If the item already exists, the quantity will be added automatically.</p>
     <form id="form-stockin" class="form">
-      <input type="text" id="in-name" placeholder="Item name (e.g. Bearing 6205)" required />
+      <input type="text" id="in-name" list="item-names-list" placeholder="Item name (e.g. Bearing 6205)" autocomplete="off" required />
+      <datalist id="item-names-list"></datalist>
       <div class="form-row">
         <select id="in-category">
           <option>Mechanical</option>
