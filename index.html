@@ -75,9 +75,9 @@
   <section id="tab-issue" class="tab-panel">
     <p class="hint">Log it here whenever a department takes an item — stock will reduce automatically.</p>
     <form id="form-issue" class="form">
-      <select id="out-item" required>
-        <option value="">-- Select item --</option>
-      </select>
+      <input type="text" id="out-item" list="issue-item-list" placeholder="Type item name to search..." autocomplete="off" required />
+      <datalist id="issue-item-list"></datalist>
+      <p id="out-item-avail" class="hint" style="margin:-6px 0 0;"></p>
       <input type="number" id="out-qty" placeholder="Quantity to issue" min="0.01" step="any" required />
       <select id="out-dept">
         <option>Engineering</option>

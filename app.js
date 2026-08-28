@@ -113,13 +113,14 @@ document.getElementById("form-stockin").addEventListener("submit", async (e) => 
 // ---------- Issue Item ----------
 document.getElementById("form-issue").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const k = document.getElementById("out-item").value;
+  const typedName = document.getElementById("out-item").value.trim();
+  const k = keyOf(typedName);
   const qty = parseFloat(document.getElementById("out-qty").value);
   const department = document.getElementById("out-dept").value;
   const by = document.getElementById("out-by").value.trim() || "-";
   const note = document.getElementById("out-note").value.trim() || "-";
 
-  if (!k) return showToast("Please select an item.", true);
+  if (!typedName || !inventory[k]) return showToast("Please select a valid item from the list.", true);
   if (!qty || qty <= 0) return showToast("Please enter a valid quantity.", true);
 
   try {
@@ -140,10 +141,18 @@ document.getElementById("form-issue").addEventListener("submit", async (e) => {
     });
     showToast(qty + " " + item.unit + " of " + item.name + " issued to " + department);
     document.getElementById("form-issue").reset();
+    document.getElementById("out-item-avail").textContent = "";
   } catch (err) {
     console.error(err);
     showToast("Could not save. Please try again.", true);
   }
+});
+
+document.getElementById("out-item").addEventListener("input", (e) => {
+  const k = keyOf(e.target.value.trim());
+  const item = inventory[k];
+  const availEl = document.getElementById("out-item-avail");
+  availEl.textContent = item ? "Available: " + item.qty + " " + item.unit : "";
 });
 
 // ---------- Render: Dashboard ----------
@@ -218,15 +227,11 @@ function renderInventory() {
 }
 document.getElementById("search-inventory").addEventListener("input", renderInventory);
 
-// ---------- Render: Issue dropdown ----------
+// ---------- Render: Issue item suggestions ----------
 function renderIssueDropdown() {
-  const sel = document.getElementById("out-item");
-  const current = sel.value;
-  const items = Object.entries(inventory).map(([k, v]) => ({ key: k, ...v })).sort((a, b) => a.name.localeCompare(b.name));
-  sel.innerHTML = `<option value="">-- Select item --</option>` + items.map(i =>
-    `<option value="${i.key}">${esc(i.name)} (available: ${i.qty} ${esc(i.unit)})</option>`
-  ).join("");
-  if (items.find(i => i.key === current)) sel.value = current;
+  const list = document.getElementById("issue-item-list");
+  const items = Object.values(inventory).sort((a, b) => a.name.localeCompare(b.name));
+  list.innerHTML = items.map(i => `<option value="${esc(i.name)}"></option>`).join("");
 }
 
 // ---------- Render: Transactions ----------
