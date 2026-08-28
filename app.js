@@ -19,7 +19,7 @@ function isLow(item) {
 }
 
 function keyOf(name) {
-  return name.trim().toLowerCase().replace(/\s+/g, "_");
+  return name.trim().toLowerCase().replace(/\//g, "-").replace(/\s+/g, "_");
 }
 
 function showToast(msg, isError) {
